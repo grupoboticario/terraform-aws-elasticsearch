@@ -2,8 +2,9 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
+| additional_security_groups | List of custom created security group IDs to be allowed to connect to the cluster | list(string) | `<list>` | no |
 | advanced_options | Key-value string pairs to specify advanced configuration options | map(string) | `<map>` | no |
-| allowed_cidr_blocks | List of CIDR blocks to be allowed to connect to the cluster | list(string) | `<list>` | no |
+| allowed_cidr_blocks | List of CIDR blocks to be allowed to connect to the cluster (will be added as cidr_blocks to the default security group) | list(string) | `<list>` | no |
 | attributes | Additional attributes (e.g. `1`) | list(string) | `<list>` | no |
 | automated_snapshot_start_hour | Hour at which automated snapshots are taken, in UTC | number | `0` | no |
 | availability_zone_count | Number of Availability Zones for the domain to use. | number | `2` | no |
@@ -11,6 +12,7 @@
 | cognito_iam_role_arn | ARN of the IAM role that has the AmazonESCognitoAccess policy attached | string | `` | no |
 | cognito_identity_pool_id | The ID of the Cognito Identity Pool to use | string | `` | no |
 | cognito_user_pool_id | The ID of the Cognito User Pool to use | string | `` | no |
+| create_default_security_group | Whether to create a default security group | bool | `true` | no |
 | create_iam_service_linked_role | Whether to create `AWSServiceRoleForAmazonElasticsearchService` service-linked role. Set it to `false` if you already have an ElasticSearch cluster created in the AWS account and AWSServiceRoleForAmazonElasticsearchService already exists. See https://github.com/terraform-providers/terraform-provider-aws/issues/5218 for more info | bool | `true` | no |
 | dedicated_master_count | Number of dedicated master nodes in the cluster | number | `0` | no |
 | dedicated_master_enabled | Indicates whether dedicated master nodes are enabled for the cluster | bool | `false` | no |
@@ -45,8 +47,8 @@
 | name | Solution name, e.g. 'app' or 'jenkins' | string | `` | no |
 | namespace | Namespace, which could be your organization name or abbreviation, e.g. 'eg' or 'cp' | string | `` | no |
 | node_to_node_encryption_enabled | Whether to enable node-to-node encryption | bool | `false` | no |
-| security_groups | List of security group IDs to be allowed to connect to the cluster | list(string) | `<list>` | no |
-| stage | Stage, e.g. 'prod', 'staging', 'dev', OR 'source', 'build', 'test', 'deploy', 'release' | string | `` | no |
+| security_groups | List of security group IDs to be allowed to connect to the cluster (will be added as source_security_group_id to the default security group) | list(string) | `<list>` | no |
+| stage | Stage (e.g. `prod`, `dev`, `staging`) | string | `` | no |
 | subnet_ids | Subnet IDs | list(string) | - | yes |
 | tags | Additional tags (e.g. `map('BusinessUnit','XYZ')` | map(string) | `<map>` | no |
 | vpc_id | VPC ID | string | - | yes |
