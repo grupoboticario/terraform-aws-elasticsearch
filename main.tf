@@ -1,39 +1,31 @@
-module "label" {
-  source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.16.0"
-  enabled     = var.enabled
-  namespace   = var.namespace
-  name        = var.name
-  stage       = var.stage
-  environment = var.environment
-  delimiter   = var.delimiter
-  attributes  = var.attributes
-  label_order = var.label_order
-  tags        = var.tags
+module "user_label" {
+  source  = "cloudposse/label/null"
+  version = "0.22.0"
+
+  attributes = compact(concat(module.this.attributes, ["user"]))
+
+  context = module.this.context
 }
 
-module "user_label" {
-  source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.16.0"
-  enabled     = var.enabled
-  namespace   = var.namespace
-  name        = var.name
-  stage       = var.stage
-  environment = var.environment
-  delimiter   = var.delimiter
-  attributes  = concat(var.attributes, ["user"])
-  label_order = var.label_order
-  tags        = var.tags
+module "kibana_label" {
+  source  = "cloudposse/label/null"
+  version = "0.22.0"
+
+  attributes = compact(concat(module.this.attributes, ["kibana"]))
+
+  context = module.this.context
 }
 
 resource "aws_security_group" "default" {
-  count       = var.enabled && var.create_default_security_group ? 1 : 0
+  count       = module.this.enabled && var.vpc_enabled ? 1 : 0
   vpc_id      = var.vpc_id
-  name        = module.label.id
+  name        = module.this.id
   description = "Allow inbound traffic from Security Groups and CIDRs. Allow all outbound traffic"
-  tags        = module.label.tags
+  tags        = module.this.tags
 }
 
 resource "aws_security_group_rule" "ingress_security_groups" {
-  count                    = var.enabled && var.create_default_security_group ? length(var.security_groups) : 0
+  count                    = module.this.enabled && var.vpc_enabled ? length(var.security_groups) : 0
   description              = "Allow inbound traffic from Security Groups"
   type                     = "ingress"
   from_port                = var.ingress_port_range_start
@@ -44,7 +36,7 @@ resource "aws_security_group_rule" "ingress_security_groups" {
 }
 
 resource "aws_security_group_rule" "ingress_cidr_blocks" {
-  count             = var.enabled && var.create_default_security_group && length(var.allowed_cidr_blocks) > 0 ? 1 : 0
+  count             = module.this.enabled && var.vpc_enabled && length(var.allowed_cidr_blocks) > 0 ? 1 : 0
   description       = "Allow inbound traffic from CIDR blocks"
   type              = "ingress"
   from_port         = var.ingress_port_range_start
@@ -55,7 +47,7 @@ resource "aws_security_group_rule" "ingress_cidr_blocks" {
 }
 
 resource "aws_security_group_rule" "egress" {
-  count             = var.enabled && var.create_default_security_group ? 1 : 0
+  count             = module.this.enabled && var.vpc_enabled ? 1 : 0
   description       = "Allow all egress traffic"
   type              = "egress"
   from_port         = 0
@@ -67,24 +59,24 @@ resource "aws_security_group_rule" "egress" {
 
 # https://github.com/terraform-providers/terraform-provider-aws/issues/5218
 resource "aws_iam_service_linked_role" "default" {
-  count            = var.enabled && var.create_iam_service_linked_role ? 1 : 0
+  count            = module.this.enabled && var.create_iam_service_linked_role ? 1 : 0
   aws_service_name = "es.amazonaws.com"
   description      = "AWSServiceRoleForAmazonElasticsearchService Service-Linked Role"
 }
 
 # Role that pods can assume for access to elasticsearch and kibana
 resource "aws_iam_role" "elasticsearch_user" {
-  count              = var.enabled && (length(var.iam_authorizing_role_arns) > 0 || length(var.iam_role_arns) > 0) ? 1 : 0
+  count              = module.this.enabled && (length(var.iam_authorizing_role_arns) > 0 || length(var.iam_role_arns) > 0) ? 1 : 0
   name               = module.user_label.id
   assume_role_policy = join("", data.aws_iam_policy_document.assume_role.*.json)
-  description        = "IAM Role to assume to access the Elasticsearch ${module.label.id} cluster"
+  description        = "IAM Role to assume to access the Elasticsearch ${module.this.id} cluster"
   tags               = module.user_label.tags
 
   max_session_duration = var.iam_role_max_session_duration
 }
 
 data "aws_iam_policy_document" "assume_role" {
-  count = var.enabled && (length(var.iam_authorizing_role_arns) > 0 || length(var.iam_role_arns) > 0) ? 1 : 0
+  count = module.this.enabled && (length(var.iam_authorizing_role_arns) > 0 || length(var.iam_role_arns) > 0) ? 1 : 0
 
   statement {
     actions = [
@@ -93,7 +85,7 @@ data "aws_iam_policy_document" "assume_role" {
 
     principals {
       type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
+      identifiers = var.aws_ec2_service_name
     }
 
     principals {
@@ -105,26 +97,22 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
-# inspired by https://github.com/hashicorp/terraform/issues/20692
-# I use 0.12 new "dynamic" block - https://www.terraform.io/docs/configuration/expressions.html
-# If we have 1 az - the count of this resource equals 0, hence no config
-# block appears in the `aws_elasticsearch_domain`
-# If we have more than 1 - we set the trigger to the actual value of
-# `availability_zone_count`
-# and `dynamic` block kicks in
-resource "null_resource" "azs" {
-  count = var.availability_zone_count > 1 ? 1 : 0
-  triggers = {
-    availability_zone_count = var.availability_zone_count
-  }
-}
-
 resource "aws_elasticsearch_domain" "default" {
-  count                 = var.enabled ? 1 : 0
-  domain_name           = module.label.id
+  count                 = module.this.enabled ? 1 : 0
+  domain_name           = module.this.id
   elasticsearch_version = var.elasticsearch_version
 
   advanced_options = var.advanced_options
+
+  advanced_security_options {
+    enabled                        = var.advanced_security_options_enabled
+    internal_user_database_enabled = var.advanced_security_options_internal_user_database_enabled
+    master_user_options {
+      master_user_arn      = var.advanced_security_options_master_user_arn
+      master_user_name     = var.advanced_security_options_master_user_name
+      master_user_password = var.advanced_security_options_master_user_password
+    }
+  }
 
   ebs_options {
     ebs_enabled = var.ebs_volume_size > 0 ? true : false
@@ -138,6 +126,11 @@ resource "aws_elasticsearch_domain" "default" {
     kms_key_id = var.encrypt_at_rest_kms_key_id
   }
 
+  domain_endpoint_options {
+    enforce_https       = var.domain_endpoint_options_enforce_https
+    tls_security_policy = var.domain_endpoint_options_tls_security_policy
+  }
+
   cluster_config {
     instance_count           = var.instance_count
     instance_type            = var.instance_type
@@ -145,11 +138,14 @@ resource "aws_elasticsearch_domain" "default" {
     dedicated_master_count   = var.dedicated_master_count
     dedicated_master_type    = var.dedicated_master_type
     zone_awareness_enabled   = var.zone_awareness_enabled
+    warm_enabled             = var.warm_enabled
+    warm_count               = var.warm_enabled ? var.warm_count : null
+    warm_type                = var.warm_enabled ? var.warm_type : null
 
     dynamic "zone_awareness_config" {
-      for_each = null_resource.azs[*].triggers
+      for_each = var.availability_zone_count > 1 ? [true] : []
       content {
-        availability_zone_count = zone_awareness_config.value.availability_zone_count
+        availability_zone_count = var.availability_zone_count
       }
     }
   }
@@ -158,20 +154,27 @@ resource "aws_elasticsearch_domain" "default" {
     enabled = var.node_to_node_encryption_enabled
   }
 
-  vpc_options {
-    security_group_ids = compact(concat([join("", aws_security_group.default.*.id)], var.additional_security_groups))
-    subnet_ids         = var.subnet_ids
+  dynamic "vpc_options" {
+    for_each = var.vpc_enabled ? [true] : []
+
+    content {
+      security_group_ids = compact(concat([join("", aws_security_group.default.*.id)], var.additional_security_groups))
+      subnet_ids         = var.subnet_ids
+    }
   }
 
   snapshot_options {
     automated_snapshot_start_hour = var.automated_snapshot_start_hour
   }
 
-  cognito_options {
-    enabled          = var.cognito_authentication_enabled
-    user_pool_id     = var.cognito_user_pool_id
-    identity_pool_id = var.cognito_identity_pool_id
-    role_arn         = var.cognito_iam_role_arn
+  dynamic "cognito_options" {
+    for_each = var.cognito_authentication_enabled ? [true] : []
+    content {
+      enabled          = true
+      user_pool_id     = var.cognito_user_pool_id
+      identity_pool_id = var.cognito_identity_pool_id
+      role_arn         = var.cognito_iam_role_arn
+    }
   }
 
   log_publishing_options {
@@ -187,20 +190,28 @@ resource "aws_elasticsearch_domain" "default" {
   }
 
   log_publishing_options {
+    enabled                  = var.log_publishing_audit_enabled
+    log_type                 = "AUDIT_LOGS"
+    cloudwatch_log_group_arn = var.log_publishing_audit_cloudwatch_log_group_arn
+  }
+
+  log_publishing_options {
     enabled                  = var.log_publishing_application_enabled
     log_type                 = "ES_APPLICATION_LOGS"
     cloudwatch_log_group_arn = var.log_publishing_application_cloudwatch_log_group_arn
   }
 
-  tags = module.label.tags
+  tags = module.this.tags
 
   depends_on = [aws_iam_service_linked_role.default]
 }
 
 data "aws_iam_policy_document" "default" {
-  count = var.enabled && (length(var.iam_authorizing_role_arns) > 0 || length(var.iam_role_arns) > 0) ? 1 : 0
+  count = module.this.enabled && (length(var.iam_authorizing_role_arns) > 0 || length(var.iam_role_arns) > 0) ? 1 : 0
 
   statement {
+    effect = "Allow"
+
     actions = distinct(compact(var.iam_actions))
 
     resources = [
@@ -213,28 +224,67 @@ data "aws_iam_policy_document" "default" {
       identifiers = distinct(compact(concat(var.iam_role_arns, aws_iam_role.elasticsearch_user.*.arn)))
     }
   }
+
+  # This statement is for non VPC ES to allow anonymous access from whitelisted IP ranges without requests signing
+  # https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-ac.html#es-ac-types-ip
+  # https://aws.amazon.com/premiumsupport/knowledge-center/anonymous-not-authorized-elasticsearch/
+  dynamic "statement" {
+    for_each = length(var.allowed_cidr_blocks) > 0 && ! var.vpc_enabled ? [true] : []
+    content {
+      effect = "Allow"
+
+      actions = distinct(compact(var.iam_actions))
+
+      resources = [
+        join("", aws_elasticsearch_domain.default.*.arn),
+        "${join("", aws_elasticsearch_domain.default.*.arn)}/*"
+      ]
+
+      principals {
+        type        = "AWS"
+        identifiers = ["*"]
+      }
+
+      condition {
+        test     = "IpAddress"
+        values   = var.allowed_cidr_blocks
+        variable = "aws:SourceIp"
+      }
+    }
+  }
 }
 
 resource "aws_elasticsearch_domain_policy" "default" {
-  count           = var.enabled && (length(var.iam_authorizing_role_arns) > 0 || length(var.iam_role_arns) > 0) ? 1 : 0
-  domain_name     = module.label.id
+  count           = module.this.enabled && (length(var.iam_authorizing_role_arns) > 0 || length(var.iam_role_arns) > 0) ? 1 : 0
+  domain_name     = module.this.id
   access_policies = join("", data.aws_iam_policy_document.default.*.json)
 }
 
 module "domain_hostname" {
-  source  = "git::https://github.com/cloudposse/terraform-aws-route53-cluster-hostname.git?ref=tags/0.3.0"
-  enabled = var.enabled && var.dns_zone_id != "" ? true : false
-  name    = "${var.elasticsearch_subdomain_name == "" ? var.name : var.elasticsearch_subdomain_name}"
-  ttl     = 60
-  zone_id = var.dns_zone_id
-  records = [join("", aws_elasticsearch_domain.default.*.endpoint)]
+  source  = "cloudposse/route53-cluster-hostname/aws"
+  version = "0.8.0"
+
+  enabled  = module.this.enabled && var.domain_hostname_enabled
+  dns_name = var.elasticsearch_subdomain_name == "" ? module.this.id : var.elasticsearch_subdomain_name
+  ttl      = 60
+  zone_id  = var.dns_zone_id
+  records  = [join("", aws_elasticsearch_domain.default.*.endpoint)]
+
+  context = module.this.context
 }
 
 module "kibana_hostname" {
-  source  = "git::https://github.com/cloudposse/terraform-aws-route53-cluster-hostname.git?ref=tags/0.3.0"
-  enabled = var.enabled && var.dns_zone_id != "" ? true : false
-  name    = var.kibana_subdomain_name
-  ttl     = 60
-  zone_id = var.dns_zone_id
+  source  = "cloudposse/route53-cluster-hostname/aws"
+  version = "0.8.0"
+
+  enabled  = module.this.enabled && var.kibana_hostname_enabled
+  dns_name = var.kibana_subdomain_name == "" ? module.kibana_label.id : var.kibana_subdomain_name
+  ttl      = 60
+  zone_id  = var.dns_zone_id
+  # Note: kibana_endpoint is not just a domain name, it includes a path component,
+  # and as such is not suitable for a DNS record. The plain endpoint is the
+  # hostname portion and should be used for DNS.
   records = [join("", aws_elasticsearch_domain.default.*.endpoint)]
+
+  context = module.this.context
 }

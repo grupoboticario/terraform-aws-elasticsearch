@@ -3,7 +3,7 @@
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12.26 |
+| terraform | >= 0.12.0 |
 | aws | >= 2.0 |
 | null | >= 2.0 |
 | template | >= 2.0 |
@@ -18,7 +18,6 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| additional_security_groups | List of custom created security group IDs to be allowed to connect to the cluster | list(string) | `<list>` | no |
 | additional\_tag\_map | Additional tags for appending to tags\_as\_list\_of\_maps. Not added to `tags`. | `map(string)` | `{}` | no |
 | advanced\_options | Key-value string pairs to specify advanced configuration options | `map(string)` | `{}` | no |
 | advanced\_security\_options\_enabled | AWS Elasticsearch Kibana enchanced security plugin enabling (forces new resource) | `bool` | `false` | no |
