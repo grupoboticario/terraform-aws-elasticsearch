@@ -17,7 +17,7 @@ module "kibana_label" {
 }
 
 resource "aws_security_group" "default" {
-  count       = module.this.enabled && var.vpc_enabled ? 1 : 0
+  count       = module.this.enabled && var.vpc_enabled && var.create_default_security_group ? 1 : 0
   vpc_id      = var.vpc_id
   name        = module.this.id
   description = "Allow inbound traffic from Security Groups and CIDRs. Allow all outbound traffic"
@@ -25,7 +25,7 @@ resource "aws_security_group" "default" {
 }
 
 resource "aws_security_group_rule" "ingress_security_groups" {
-  count                    = module.this.enabled && var.vpc_enabled ? length(var.security_groups) : 0
+  count                    = module.this.enabled && var.vpc_enabled && var.create_default_security_group ? length(var.security_groups) : 0
   description              = "Allow inbound traffic from Security Groups"
   type                     = "ingress"
   from_port                = var.ingress_port_range_start
@@ -36,7 +36,7 @@ resource "aws_security_group_rule" "ingress_security_groups" {
 }
 
 resource "aws_security_group_rule" "ingress_cidr_blocks" {
-  count             = module.this.enabled && var.vpc_enabled && length(var.allowed_cidr_blocks) > 0 ? 1 : 0
+  count             = module.this.enabled && var.vpc_enabled && var.create_default_security_group && length(var.allowed_cidr_blocks) > 0 ? 1 : 0
   description       = "Allow inbound traffic from CIDR blocks"
   type              = "ingress"
   from_port         = var.ingress_port_range_start
@@ -47,7 +47,7 @@ resource "aws_security_group_rule" "ingress_cidr_blocks" {
 }
 
 resource "aws_security_group_rule" "egress" {
-  count             = module.this.enabled && var.vpc_enabled ? 1 : 0
+  count             = module.this.enabled && var.vpc_enabled && var.create_default_security_group ? 1 : 0
   description       = "Allow all egress traffic"
   type              = "egress"
   from_port         = 0
