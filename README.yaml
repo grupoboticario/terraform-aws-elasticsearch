@@ -45,13 +45,21 @@ introduction: |-
   The subnets must be in different Availability Zones in the same region.
   If you don't enable zone awareness, Amazon ES places an endpoint into only one subnet. You also need to set `availability_zone_count` to `1`.
 
+examples: |-
+  Here is a working example of using this module:
+  - [`examples/complete`](examples/complete)
+
+  Here are automated tests for the complete example using [bats](https://github.com/bats-core/bats-core) and [Terratest](https://github.com/gruntwork-io/terratest) (which tests and deploys the example on AWS):
+  - [`test`](test)
+
 # How to use this project
 usage: |-
-  Basic [example](examples/basic)
 
   ```hcl
   module "elasticsearch" {
-    source                  = "git::https://github.com/cloudposse/terraform-aws-elasticsearch.git?ref=master"
+    source = "cloudposse/elasticsearch/aws"
+    # Cloud Posse recommends pinning every module to a specific version
+    # version     = "x.x.x"
     namespace               = "eg"
     stage                   = "dev"
     name                    = "es"
@@ -63,6 +71,7 @@ usage: |-
     elasticsearch_version   = "6.5"
     instance_type           = "t2.small.elasticsearch"
     instance_count          = 4
+    ebs_volume_size         = 10
     iam_role_arns           = ["arn:aws:iam::XXXXXXXXX:role/ops", "arn:aws:iam::XXXXXXXXX:role/dev"]
     iam_actions             = ["es:ESHttpGet", "es:ESHttpPut", "es:ESHttpPost"]
     encrypt_at_rest_enabled = true
@@ -117,3 +126,5 @@ contributors:
     github: "goruha"
   - name: "Sarkis Varozian"
     github: "sarkis"
+  - name: "Marcin Brański"
+    github: "3h4x"
