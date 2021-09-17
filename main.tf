@@ -64,7 +64,7 @@ resource "aws_security_group_rule" "egress" {
 # https://github.com/terraform-providers/terraform-provider-aws/issues/5218
 resource "aws_iam_service_linked_role" "default" {
   count            = "${var.enabled == "true" && var.create_iam_service_linked_role == "true" ? 1 : 0}"
-  aws_service_name = "es.amazonaws.com"
+  aws_service_name = "esg.amazonaws.com"
   description      = "AWSServiceRoleForAmazonElasticsearchService Service-Linked Role"
 }
 
