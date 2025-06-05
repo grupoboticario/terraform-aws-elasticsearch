@@ -1,0 +1,390 @@
+{
+  "templates": [
+    {
+      "name": "alquimia-template-backstage",
+      "version": "1.0.0",
+      "source": {
+        "name": "github",
+        "key": "https://github.com/grupoboticario/alquimia-template-backstage",
+        "options": {
+          "baseUrl": "https://github.com",
+          "baseUrlApi": "https://api.github.com"
+        }
+      },
+      "partials": [
+        {
+          "name": "catalog:configure",
+          "parameters": {
+            "component": "terraform-aws-elasticsearch",
+            "componentDescription": "AWS Terraform Elasticsearch",
+            "domain": "infraestrutura",
+            "system": "infra-core",
+            "team": "sre",
+            "bucketSuffix": "lmxla",
+            "cloudProviderTemplateName": "alquimia-template-crossplane-aws",
+            "repo": {
+              "name": "terraform-aws-elasticsearch",
+              "url": "https://github.com/grupoboticario/terraform-aws-elasticsearch",
+              "nameWithOwner": "grupoboticario/terraform-aws-elasticsearch",
+              "owner": {
+                "login": "grupoboticario"
+              },
+              "defaultBranchRef": {
+                "name": "master"
+              }
+            },
+            "repoName": "terraform-aws-elasticsearch",
+            "repoDefaultBranch": "master",
+            "tags": [
+              "infra",
+              "aws"
+            ],
+            "lifecycle": "production",
+            "argocdProxyUrl": "/argocd/core",
+            "sonarProjects": [
+              "terraform-aws-elasticsearch"
+            ],
+            "github": {
+              "repoName": "terraform-aws-elasticsearch",
+              "orgName": "grupoboticario"
+            },
+            "domainName": "infraestrutura",
+            "backendDomainName": "grupoboticario.digital",
+            "valueStream": {
+              "metadata": {
+                "namespace": "default",
+                "annotations": {
+                  "backstage.io/managed-by-location": "url:https://github.com/grupoboticario/alquimia-dev-platform/tree/main/domains/infraestrutura/domain.yaml",
+                  "backstage.io/managed-by-origin-location": "url:https://github.com/grupoboticario/alquimia-dev-platform/blob/main/domains/infraestrutura/location.yaml",
+                  "backstage.io/view-url": "https://github.com/grupoboticario/alquimia-dev-platform/tree/main/domains/infraestrutura/domain.yaml",
+                  "backstage.io/edit-url": "https://github.com/grupoboticario/alquimia-dev-platform/edit/main/domains/infraestrutura/domain.yaml",
+                  "backstage.io/source-location": "url:https://github.com/grupoboticario/alquimia-dev-platform/tree/main/domains/infraestrutura/"
+                },
+                "name": "infraestrutura",
+                "description": "Entidade para o domínio do Chapter de Infraestrutura",
+                "acronym": "infra",
+                "englishName": "infrastructure",
+                "alquimia": {
+                  "permissions": [
+                    "public"
+                  ]
+                },
+                "uid": "88e859e2-436d-4e54-8de7-f8b7cd7d8d84",
+                "etag": "5ab277f7f7d1a6c6ebef15c709e4fdea24971867"
+              },
+              "apiVersion": "backstage.io/v1alpha1",
+              "kind": "Domain",
+              "spec": {
+                "owner": "devops",
+                "argocdUrl": "argocd.core.grupoboticario.digital",
+                "devOpsTeam": "devops",
+                "defaultRunnerArch": "arm64",
+                "runners": [
+                  {
+                    "arch": "amd64",
+                    "label": "ch-tech-iac"
+                  },
+                  {
+                    "arch": "arm64",
+                    "label": "ch-tech-iac-arm64"
+                  }
+                ]
+              },
+              "relations": [
+                {
+                  "type": "canBeAccessedBy",
+                  "targetRef": "group:default/public"
+                },
+                {
+                  "type": "hasEnvironment",
+                  "targetRef": "environment:default/apigee-core-prd-dev"
+                },
+                {
+                  "type": "hasEnvironment",
+                  "targetRef": "environment:default/apigee-core-prd-hml"
+                },
+                {
+                  "type": "hasEnvironment",
+                  "targetRef": "environment:default/apigee-core-prd-prd"
+                },
+                {
+                  "type": "hasEnvironmentSetFor-api-gateway",
+                  "targetRef": "environmentset:default/apigee-infraestrutura-api-gateway"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/autenticacao-integrada"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/cextechvoz"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/dcoaad"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/deploy-db-gera-boti"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/devops-infraestrutura"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/infra-core"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/infraestrutura"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/infra-workflow-steps"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/netbox"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/netops"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/netops-ansible"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/netops-sdwan"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/private-cloud"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/techcenter-files"
+                },
+                {
+                  "type": "hasPart",
+                  "targetRef": "system:default/tf-azr-resources"
+                },
+                {
+                  "type": "ownedBy",
+                  "targetRef": "group:default/devops"
+                }
+              ]
+            },
+            "catalogInfoType": "non-standard",
+            "archInfo": {
+              "runnerLabel": "ch-tech-iac-arm64"
+            },
+            "resources": {
+              "cpu": "80m",
+              "memory": "80Mi"
+            },
+            "probe": {},
+            "catalogInfoKind": "Component"
+          }
+        }
+      ],
+      "parameters": {
+        "bucketSuffix": "lmxla",
+        "cloudProviderTemplateName": "alquimia-template-crossplane-aws",
+        "repo": {
+          "name": "terraform-aws-elasticsearch",
+          "url": "https://github.com/grupoboticario/terraform-aws-elasticsearch",
+          "nameWithOwner": "grupoboticario/terraform-aws-elasticsearch",
+          "owner": {
+            "login": "grupoboticario"
+          },
+          "defaultBranchRef": {
+            "name": "master"
+          }
+        },
+        "repoName": "terraform-aws-elasticsearch",
+        "repoDefaultBranch": "master",
+        "component": "terraform-aws-elasticsearch",
+        "componentDescription": "AWS Terraform Elasticsearch",
+        "tags": [
+          "infra",
+          "aws"
+        ],
+        "team": "sre",
+        "lifecycle": "production",
+        "domain": "infraestrutura",
+        "system": "infra-core",
+        "argocdProxyUrl": "/argocd/core",
+        "sonarProjects": [
+          "terraform-aws-elasticsearch"
+        ],
+        "github": {
+          "repoName": "terraform-aws-elasticsearch",
+          "orgName": "grupoboticario"
+        },
+        "domainName": "infraestrutura",
+        "backendDomainName": "grupoboticario.digital",
+        "valueStream": {
+          "metadata": {
+            "namespace": "default",
+            "annotations": {
+              "backstage.io/managed-by-location": "url:https://github.com/grupoboticario/alquimia-dev-platform/tree/main/domains/infraestrutura/domain.yaml",
+              "backstage.io/managed-by-origin-location": "url:https://github.com/grupoboticario/alquimia-dev-platform/blob/main/domains/infraestrutura/location.yaml",
+              "backstage.io/view-url": "https://github.com/grupoboticario/alquimia-dev-platform/tree/main/domains/infraestrutura/domain.yaml",
+              "backstage.io/edit-url": "https://github.com/grupoboticario/alquimia-dev-platform/edit/main/domains/infraestrutura/domain.yaml",
+              "backstage.io/source-location": "url:https://github.com/grupoboticario/alquimia-dev-platform/tree/main/domains/infraestrutura/"
+            },
+            "name": "infraestrutura",
+            "description": "Entidade para o domínio do Chapter de Infraestrutura",
+            "acronym": "infra",
+            "englishName": "infrastructure",
+            "alquimia": {
+              "permissions": [
+                "public"
+              ]
+            },
+            "uid": "88e859e2-436d-4e54-8de7-f8b7cd7d8d84",
+            "etag": "5ab277f7f7d1a6c6ebef15c709e4fdea24971867"
+          },
+          "apiVersion": "backstage.io/v1alpha1",
+          "kind": "Domain",
+          "spec": {
+            "owner": "devops",
+            "argocdUrl": "argocd.core.grupoboticario.digital",
+            "devOpsTeam": "devops",
+            "defaultRunnerArch": "arm64",
+            "runners": [
+              {
+                "arch": "amd64",
+                "label": "ch-tech-iac"
+              },
+              {
+                "arch": "arm64",
+                "label": "ch-tech-iac-arm64"
+              }
+            ]
+          },
+          "relations": [
+            {
+              "type": "canBeAccessedBy",
+              "targetRef": "group:default/public"
+            },
+            {
+              "type": "hasEnvironment",
+              "targetRef": "environment:default/apigee-core-prd-dev"
+            },
+            {
+              "type": "hasEnvironment",
+              "targetRef": "environment:default/apigee-core-prd-hml"
+            },
+            {
+              "type": "hasEnvironment",
+              "targetRef": "environment:default/apigee-core-prd-prd"
+            },
+            {
+              "type": "hasEnvironmentSetFor-api-gateway",
+              "targetRef": "environmentset:default/apigee-infraestrutura-api-gateway"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/autenticacao-integrada"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/cextechvoz"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/dcoaad"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/deploy-db-gera-boti"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/devops-infraestrutura"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/infra-core"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/infraestrutura"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/infra-workflow-steps"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/netbox"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/netops"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/netops-ansible"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/netops-sdwan"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/private-cloud"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/techcenter-files"
+            },
+            {
+              "type": "hasPart",
+              "targetRef": "system:default/tf-azr-resources"
+            },
+            {
+              "type": "ownedBy",
+              "targetRef": "group:default/devops"
+            }
+          ]
+        },
+        "catalogInfoType": "non-standard",
+        "archInfo": {
+          "runnerLabel": "ch-tech-iac-arm64"
+        },
+        "resources": {
+          "cpu": "80m",
+          "memory": "80Mi"
+        },
+        "catalogInfoKind": "Component"
+      }
+    }
+  ],
+  "globalParameters": [
+    {
+      "name": "component",
+      "value": "terraform-aws-elasticsearch"
+    },
+    {
+      "name": "componentDescription",
+      "value": "AWS Terraform Elasticsearch"
+    },
+    {
+      "name": "domain",
+      "value": "infraestrutura"
+    },
+    {
+      "name": "system",
+      "value": "infra-core"
+    },
+    {
+      "name": "team",
+      "value": "sre"
+    }
+  ]
+}
