@@ -14,7 +14,7 @@ metadata:
     - "aws"
   annotations:
     github.com/project-slug: "grupoboticario/terraform-aws-elasticsearch"
-    github.com/team-slug: "grupoboticario/sre"
+    github.com/team-slug: "grupoboticario/889"
 spec:
   type: non-standard
   lifecycle: "production"
