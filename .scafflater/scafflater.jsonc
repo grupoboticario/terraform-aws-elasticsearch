@@ -185,7 +185,39 @@
               "cpu": "80m",
               "memory": "80Mi"
             },
+            "catalogInfoKind": "Component"
+          }
+        },
+        {
+          "name": "simplificacao-migrator",
+          "parameters": {
+            "component": "terraform-aws-elasticsearch",
+            "componentDescription": "AWS Terraform Elasticsearch",
+            "domain": "infraestrutura",
+            "system": "infra-core",
+            "team": "889",
+            "resources": {
+              "cpu": "80m",
+              "memory": "80Mi"
+            },
+            "catalogInfoType": "service",
+            "catalogInfoKind": "Component"
+          }
+        },
+        {
+          "name": "remove-npmrc",
+          "parameters": {
+            "component": "terraform-aws-elasticsearch",
+            "componentDescription": "AWS Terraform Elasticsearch",
+            "domain": "infraestrutura",
+            "system": "infra-core",
+            "team": "889",
+            "resources": {
+              "cpu": "80m",
+              "memory": "80Mi"
+            },
             "probe": {},
+            "catalogInfoType": "service",
             "catalogInfoKind": "Component"
           }
         }
@@ -384,7 +416,7 @@
     },
     {
       "name": "team",
-      "value": "sre"
+      "value": "889"
     }
   ]
 }
